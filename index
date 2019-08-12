@@ -1,0 +1,952 @@
+<html>
+
+<head>
+    <style>
+        body {
+            background: black;
+            margin: 0 auto 50px auto;
+        }
+        
+        .amoeba {
+            fill: #fff;
+        }
+        
+        .purple {
+            fill: #8b1fc8;
+        }
+        
+        .div_container {
+            margin: 0 auto 50px auto;
+            width: 90%;
+            height: 99%;
+            /*border: 3px solid #8b1fc8*/
+        }
+        #intro_modal
+        {
+            max-width: 370px!important;
+        }
+        
+        .div_container svg {
+            display: inline-block;
+            position: absolute;
+            padding: 5px;
+        }
+    </style>
+    <script src="./screenfull.js"></script>
+    <script src="./letters.js"></script>
+
+
+    <link rel="stylesheet" href="./materialize.min.css">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="./materialize.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+    <script type='text/javascript'>
+        var path_obj = [];
+
+        console.info(app.path)
+        app.path_obj = []
+
+
+        var radius, rect_width;
+
+        $(document).ready(function() {
+
+
+            $('#intro_modal').modal({
+                dismissible: false, // Modal can be dismissed by clicking outside of the modal
+                opacity: .9, // Opacity of modal background
+                inDuration: 500, // Transition in duration
+                outDuration: 200, // Transition out duration
+                startingTop: '25%', // Starting top style attribute
+                endingTop: '30%'
+            });
+
+             //$('#intro_modal').modal('open');
+
+               //                     $('.modal-overlay').css('opacity',0)
+
+            //$('body').click(function() {
+
+
+            // screenfull.request($('.div_container')[0]).then(function() {
+            //     console.log('Browser entered fullscreen mode')
+
+            //plot()
+            //                })
+
+            // })
+
+            //function plot() {
+            var window_w = document.documentElement.clientWidth
+            var window_h = document.documentElement.clientHeight
+
+
+            var myColor = d3.scaleSequential().domain([1, 20])
+                .interpolator(d3.interpolateRainbow);
+
+            function getRandomArbitrary(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+            var margin = {
+                top: 80,
+                right: 55,
+                bottom: 30,
+                left: 40
+            };
+
+            var width = window_h;
+            //var height = window_h;
+            var height = width;
+
+            app.height=height;
+
+            var svg = d3.select(".div_container svg")
+                .attr("width", height)
+                .attr("height", height)
+                //.append("svg");
+
+            // .attr("transform","translate(" + margin.left + "," + margin.top + ")");
+
+
+            // Build color scale
+            var myColor = d3.scaleSequential()
+                .interpolator(d3.interpolateRainbow)
+                .domain([1, 100]);
+
+            function range(start, count) {
+                return Array.apply(0, Array(count))
+                    .map((element, index) => index + start);
+            }
+            var max = 40;
+            var ys = range(0, max);
+            var xs = range(0, max);
+
+            var all_xs_ys = [];
+
+            var xs_ys = xs.map(function(i, d) {
+                //   console.log(d)
+                // console.warn(ys[i])
+                var arr = []
+                for (var p in ys) {
+                    var t_data = d.toString() + ':' + ys[p].toString();
+                    var obj = {
+                        data: t_data,
+                        x_data: d,
+                        y_data: ys[p]
+
+
+                    }
+
+                    all_xs_ys.push(obj)
+                }
+
+            })
+
+            var all_keys = all_xs_ys.map(function(d) {
+                return d.data;
+            });
+
+
+
+            app.x = d3.scaleBand()
+                .range([0, width])
+                .domain(xs)
+                .padding(0.05);
+
+            //var radius = (x.bandwidth());
+            radius = app.x.bandwidth() / 2;
+            rect_width = app.x.bandwidth();
+
+
+            app.y = d3.scaleBand()
+                .range([0, height])
+                .domain(ys)
+                .padding(0.05);
+            var config = {
+                radius: 15,
+                gridLength: 10,
+                gridPadding: 10
+            };
+
+
+            var defs = d3.select('.g_rect').append('defs');
+
+            var filter = defs.append("filter").attr("id", "gooey");
+            //SVG filter for the gooey effect
+
+
+            //Append multiple "pieces" to the filter
+            filter.append("feGaussianBlur")
+                .attr("in", "SourceGraphic")
+                .attr("stdDeviation", "10")
+                .attr("color-interpolation-filters", "sRGB")
+                .attr("result", "blur");
+            filter.append("feColorMatrix")
+                //the class used later to transition the gooey effect
+                .attr("class", "blurValues")
+                .attr("in", "blur")
+                .attr("mode", "matrix")
+                .attr("values", "1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9")
+                .attr("result", "gooey");
+
+            filter.append("feBlend")
+                .attr("in", "SourceGraphic")
+                .attr("in2", "gooey");
+            d3.select('.g_rect')
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .style("filter", "url(#gooey)")
+
+
+
+
+            //rectangles
+            app.rect_data = all_xs_ys.filter(function(d, i) {
+                //return d.data;
+                //if (d.y_data < 3)
+                return d.data;
+            });
+            console.warn(app.rect_data)
+            app.g_rect = svg.select('g.g_rect');
+
+
+
+            app.my_rect_group = app.g_rect.selectAll('rect')
+                .data(app.rect_data);
+
+
+            app.all_rects = app.my_rect_group
+                .enter()
+
+
+            .append("rect")
+                .attr('code', function(d) {
+                    //      console.log(d)
+                    return d.data
+                })
+                .attr("x", function(d) {
+                    d.x_center = app.x(d.x_data) + (rect_width / 2)
+                    return app.x(d.x_data)
+                })
+                .attr("y", function(d) {
+                    d.y_center = app.x(d.y_data) + (rect_width / 2)
+                    return app.y(d.y_data)
+                })
+                .attr("width", rect_width)
+                .attr('height', rect_width)
+                .attr('fill', function() {
+
+                    return 'black';
+                    //return myColor(getRandomArbitrary(0, 100));
+                })
+                .style('opacity', 0.2);
+
+
+
+            // g_circle = svg.select('g.g_circle');
+
+            // var circle_data = all_xs_ys.filter(function(d, i) {
+            //     //return d.data;
+            //     if (d.y_data > 30)
+            //         return d.data;
+            // });
+            // console.warn(circle_data)
+
+            // var my_circle_group = g_circle.selectAll('circle')
+            //     .data(circle_data)
+
+
+            // //svg.selectAll('.data_viz g.g_circle').append('g').attr('class', 'g_circle')
+            // //var cirleEnter = my_circle_group.select('.g_circle')
+
+            // my_circle_group.enter()
+
+            // .append("circle")
+            //     .attr('code', function(d, i) {
+
+            //         return d.data;
+            //     })
+            //     .attr("cx", function(d) {
+            //         return app.x(d.x_data) + radius
+            //     })
+            //     .attr("cy", function(d) {
+            //         return app.y(d.y_data) + radius
+            //     })
+            //     .attr("r", radius / 2)
+            //     .attr('fill', function() {
+
+
+            //         return myColor(getRandomArbitrary(0, 100));
+            //     })
+            //     .style('opacity', 1)
+
+            // console.log(my_circle_group)
+
+
+
+
+
+
+
+            function plot_letter(letter, last) {
+                var path_obj = app.path_obj;
+                // path_obj.push({letter:letter,data:[]})
+                var path = app.path;
+
+
+
+                var _path = path.filter(function(d) {
+                    
+                    if (d.letter == letter) {
+
+                        return d;
+                    }
+                })[0]
+                console.log(_path)
+                var all_new_keys = d3.map(_path.data, function(d) {
+                    return d.data;
+                }).keys();
+
+
+                console.info(all_new_keys);
+                //order of animation we should follos
+                var this_path = all_new_keys;
+                console.warn(this_path.length);
+
+
+
+
+                /*     var my_rect_group = window['g_rect'].selectAll('rect')
+                .data(rect_data);
+                console.info(rect_data)
+*/
+                console.info(app.my_rect_group)
+                path_obj = []
+
+                var x = app.g_rect.selectAll('rect').filter(function(d, i) {
+                    var pos = all_new_keys.indexOf(d.data)
+                    if (i == 0) {
+                        console.warn(d)
+                        console.info(_path)
+                        console.log(pos)
+                    }
+
+                    if (pos !== -1) {
+                        //console.warn('present '+d.data+' for letter '+letter)
+
+                        path_obj.push({
+                            id: i,
+                            code: d.data,
+                            x_data: d.x_data,
+                            y_data: d.y_data,
+                            cx: app.x(d.x_data) + radius,
+                            cy: app.y(d.y_data) + radius
+                        })
+
+                        return d
+                    }
+
+                });
+
+                console.log(path_obj)
+                console.info(x)
+
+                x.enter()
+                    .append("rect")
+                    .attr('code', function(d, i) {
+
+
+
+                        return d.data;
+                    })
+                    .attr('class', 'duplicated_rect')
+                    .attr("x", function(d) {
+                        d.x_center = x(d.x_data) + (rect_width / 2)
+                        return x(d.x_data)
+                    })
+                    .attr("y", function(d) {
+                        d.y_center = x(d.y_data) + (rect_width / 2)
+                        return y(d.y_data)
+                    })
+                    .attr("width", rect_width)
+                    .attr('height', rect_width)
+                    .attr('fill', function() {
+
+                        return 'black';
+                        //return myColor(getRandomArbitrary(0, 100));
+                    })
+                    .style('opacity', 0);
+
+
+
+                /*console.info(path_obj)
+                var duplicated_c = app.g_rect.selectAll('.duplicated')
+                    //.data(path_obj, function(d) {
+                    .data(app.path_obj, function(d) {
+                        return d.data;
+                    });*/
+
+
+
+                // console.log(radius);
+                /*var duplicated_circles_rect = duplicated_c
+                    .enter()
+                    .append("circle")
+                    .attr('code', function(d) {
+                        return d.code;
+                    })
+                    .classed('duplicated_circle_rect', true)
+                    .attr("cx", function(d) {
+                      //  console.log(d)
+                        return d.cx
+                    })
+                    .attr("cy", function(d) {
+                        return d.cy;
+                    })
+                    .attr("r", 5)
+                    .attr('fill', function() {
+                        return myColor(getRandomArbitrary(0, 100));
+                    })
+
+                //12
+                //debugger
+                //duplicated_circles
+                console.log($('.duplicated').length);
+                var not_letter = svg.selectAll('circle').filter(function(d, i) {
+                    return d3.select(this).classed('duplicated_circle_rect') == false
+                });*/
+                var myColor = d3.scaleSequential()
+                    .interpolator(d3.interpolateRainbow)
+                    .domain([1, 100]);
+
+                if (app.circles == true) {
+                    var duplicated_in_circle = app.g_rect.selectAll('.duplicated_circle_circle.' + letter)
+                        //.data(path_obj, function(d) {
+                        .data(path_obj, function(d) {
+                            return d.data;
+                        });
+
+                    var duplicated_circles_circle = duplicated_in_circle
+                        .enter()
+                        .append("circle")
+                        .attr('code', function(d) {
+                            return d.code;
+                        })
+                        .attr('class', 'duplicated_circle_circle ' + letter)
+                        .attr("cx", function(d) {
+
+                            return d.cx
+                        })
+                        .attr("cy", function(d) {
+                            return d.cy;
+                        })
+                        .attr("r", radius / 3)
+                        .attr('fill', function() {
+                            return myColor(getRandomArbitrary(0, 100));
+                        })
+                        .style('opacity', 0.7);
+
+
+
+
+
+                    duplicated_circles_circle.transition()
+                        .duration(300)
+                        .delay(function(d, i) {
+                            //the bigger, the faster
+                            //  console.info(i * 10)
+
+                            return (i * 10)
+                        })
+                        .style('opacity', 1)
+                        .attr("r", function(d, i) {
+                            return radius / 1.2
+                        })
+                        .style("fill", function(d, i) {
+
+                            //  return d3.interpolate("green", "red");
+                            return myColor(getRandomArbitrary(0, 100));
+
+                        })
+                        /* .attr("cy", function(d, i) {
+                             var pos = path.indexOf(d.code);
+                             if (i==0)
+                             {
+                                 console.info(path_obj)
+                             }
+                             if (pos!==-1)
+                             {
+                             
+                             if (i < path_obj.length - 2 ) {
+                                 
+                                 if (pos + 1 < path_obj.length) {
+
+                                     var obj = path_obj[pos + 1];
+                                   //  console.log(obj)
+
+                                     if (d.y_data > obj.y_data) {
+                                       //  console.info('we are moving down')
+                                         var cy = obj.cy
+                                      //   console.log(cy)
+
+                                     } else {
+                                         if (d.y_data < obj.y_data) {
+                                         //    console.info('up')
+                                             var cy = obj.cy
+                                         } else {
+                                             var cy = obj.cy
+                                         }
+                                     //    console.log(cy)
+
+                                     }
+                                     return cy
+
+
+
+                                 } else {
+                                   //  console.log('igual cy')
+                                     var cy = d.cy
+                                    // console.warn(cy)
+
+                                 }
+                                 return cy
+                             } 
+                           }
+                         else {
+                                 return d.cy
+                             }
+
+                         })
+                         .attr("cx", function(d, i) {
+
+                                if (i==0)
+                             {
+                                 console.info(path_obj)
+                             }
+
+                              var pos = path.indexOf(d.code);
+                             if (pos!==-1)
+                             {
+                          
+
+                                 if (typeof path_obj[pos] == 'undefined') {
+                                 //    console.log('undefined??')
+                                     return false
+                                 }
+                                 //39:34
+                                 if (pos + 1 < path_obj.length) {
+
+
+                                 var obj = path_obj[pos + 1];
+                                 // console.warn(pos + 1)
+                                 // console.log(path_obj)
+                                 // console.info(obj)
+
+                                 // if (d.x_data > obj.x_data) {
+                                 //     console.info('we are moving left')
+                                 //     return obj.cx + radius
+                                 // } else {
+                                 //     if (d.x_data < obj.x_data) {
+                                 //         console.info('we are moving right')
+                                 //         return obj.cx
+                                 //     } else {
+                                 //         return obj.cx
+                                 //     }
+                                 // }
+                                 return obj.cx
+
+                             } else {
+                                 return d.cx
+                             }
+                            }
+                            else
+                            {
+                             return d.cx
+                            }
+
+                         })*/
+                        .on('end', function(d, i) {
+
+
+                            var random = app.all_rects._groups[0][parseInt(getRandomArbitrary(0, 40))];
+
+                            if (i == path_obj.length - 1) {
+                                console.info(path)
+                                if (last == true) {
+
+                                    return false
+                                } else {
+
+                                    var l = app.path.length;
+                                    for (var p in app.path) {
+                                        if (app.path[p].letter == letter) {
+                                            var next_index = parseInt(p) + 1;
+                                            console.log(next_index)
+                                            console.warn(app.path[next_index])
+                                            var next_letter = app.path[next_index].letter;
+                                        }
+                                    }
+                                    if (next_letter !== 'A')
+                                        plot_letter(next_letter, false)
+                                    else {
+                                        plot_letter(next_letter, true);
+                                        var shuffled = app.all_rects._groups[0].sort(function() {
+                                            return Math.random() - 0.5
+                                        });
+
+                                        var l = $('.duplicated_circle_circle').length;
+                                        console.log(l)
+                                        d3.selectAll('.duplicated_circle_circle')
+                                            .transition()
+                                            .duration(1800)
+                                            .delay(function(d, i) {
+                                                //the bigger, the faster
+                                                //  console.info(i * 10)
+
+                                                return getRandomArbitrary(2, 250)
+
+                                                /*  if (i<20)
+                                                    return (i * 400)
+                                                  if(i>20 && i<80)
+                                                    return i*100
+                                                  if (i>80)
+                                                    return 10*/
+                                            })
+                                            .attr('cx', function(d, i) {
+
+
+                                                return shuffled[i]['__data__'].x_center;
+                                            })
+                                            .attr('cy', function(d, i) {
+
+                                                return shuffled[i]['__data__'].y_center;
+                                            })
+                                            .attr('r', 1)
+                                            .remove()
+                                            .on('end', function(d, i) {
+
+                                                if (i == l - 1) {
+                                                    //  alert('done')
+                                                    d3.selectAll('rect')
+                                                        .transition()
+                                                        .duration(2000)
+                                                        //.attr('fill','white')
+                                                        .style('opacity', 0.5)
+                                                        /*.attr('stroke','white')
+                                                        .attr('stroke-width',0.2)*/
+
+                                                    app.circles = false;
+
+                                                    d3.selectAll('.duplicated_circle_circle').remove()
+
+                                                    d3.selectAll('.duplicated_rects').remove();
+
+                                                    plot_letter('G', false)
+                                                    setTimeout(function()
+                                                        {
+                                                            plot_letter('i', false)
+                                                        },1500);
+                                                    setTimeout(function()
+                                                        {
+                                                            plot_letter('O', false)
+                                                        },2500)
+                                                    
+                                                 //   if (letter == 'G')
+                              //  plot_letter('i', false)
+                            // if (letter == 'i') {
+                            //     //plot_letter('O', false)
+
+                            //     // anim_excluded()
+                            // }
+                            // if (letter == 'O')
+                            // {
+                            //     return false;
+                            //     t.stop()
+                            // }
+
+
+                                                }
+                                            })
+
+                                    }
+
+
+                                }
+
+                            }
+
+
+                        }) //end of transtion
+
+                } //end if app.circles=true
+                else {
+
+                    // $('#gooey').empty()
+
+                    // //$('#gooey').empty()
+                    //d3.select('.g_rect').attr("style", "")
+                    //var defs = d3.select('.g_rect defs') //.append("defs");
+                    // var filter = defs.select('filter').attr("id", "gooey2");
+                    //var filter = defs.select('filter').remove
+
+                    // filter.append("feGaussianBlur")
+                    //     .attr("in", "SourceGraphic")
+                    //     .attr("stdDeviation", "10")
+                    //     //to fix safari: http://stackoverflow.com/questions/24295043/svg-gaussian-blur-in-safari-unexpectedly-lightens-image
+                    //     .attr("color-interpolation-filters", "sRGB")
+                    //     .attr("result", "blur");
+                    // filter.append("feColorMatrix")
+                    //     .attr("in", "blur")
+                    //     .attr("mode", "matrix")
+                    //     .attr("values", "1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9")
+                    //     .attr("result", "gooey2");
+                    // d3.select('.g_rect').style('filter', 'url(#gooey2)')
+
+                    // d3.select('.g_circle')
+                    //     .attr("width", width + margin.left + margin.right)
+                    //     .attr("height", height + margin.top + margin.bottom)
+                    //     .style("filter", "url(#gooey2)")
+                    //     .append("g")
+
+
+
+                    plot_letter_2(letter, path_obj)
+
+
+
+                    console.warn(path_obj)
+                        //for each circle to be animated, create a duplicated
+
+
+
+
+                    //12
+                    //debugger
+                    //duplicated_circles
+                    console.log($('.duplicated_rects').length);
+                    // /* var not_letter = svg.selectAll('circle').filter(function(d, i) {
+                    //      return d3.select(this).classed('duplicated') == false
+                    //  });*/
+                }
+            }
+
+            plot_letter('h', false);
+
+            function plot_letter_2(letter, path_obj) 
+            {
+
+                console.info(letter)
+                if (letter == 'O')
+                    rainbow = true;
+                else
+                    rainbow = false;
+
+                
+                var color = d3.scaleLinear()
+                    .range(["yellow", "purple", "green"])
+                    .domain([0, 5, 15])
+                    .interpolate(d3.interpolateHclLong);
+
+                var color = d3.scaleLinear()
+                    .range(["yellow", "purple", "green"])
+                    .domain([0, 12, 25])
+                    .interpolate(d3.interpolateHsl);
+
+                var duplicated_in_rect = app.g_rect.selectAll('.duplicated_rects')
+                    //.data(path_obj, function(d) {
+                    .data(path_obj, function(d) {
+                        return d.data;
+                    });
+
+                var duplicated_rects = duplicated_in_rect
+                    .enter()
+                    .append("rect")
+                    .attr('code', function(d) {
+                        return d.code;
+                    })
+                    .classed('duplicated_rects', true)
+                    .attr('stroke', 'white')
+                    .attr('stroke-width', 1)
+                    .attr('stroke-opacity', 0.2)
+                    .attr("x", function(d) {
+
+                        return d.cx
+                    })
+                    .attr("y", function(d) {
+                        return d.cy
+                    })
+                    .attr("width", rect_width)
+                    .attr("height", rect_width)
+                    .attr('fill', function() {
+                        return 'gold';
+                    })
+                    .style('opacity', 1);
+
+
+
+                var excluded = d3.selectAll(".g_rect rect").filter(function(d, i) {
+
+                    if (d3.select(this).classed('duplicated_rects'))
+                        return d3.select(this)
+                })
+
+
+                var not_excluded = d3.selectAll(".g_rect rect").filter(function(d, i) {
+
+                    if (!d3.select(this).classed('duplicated_rects'))
+                        return d3.select(this)
+                })
+
+
+
+
+
+                var myColor = d3.scaleSequential()
+                    .interpolator(d3.interpolateRainbow)
+                    .domain([1, 100]);
+               
+
+        
+
+            if (rainbow == true) {
+
+               
+                var t2 = d3.timer(function(elapsed) {
+
+                    excluded.transition()
+                        .delay(
+                            function(d, i) {
+                                //  return getRandomArbitrary(2,10)
+                                console.warn(i)
+                                return i*10
+                            })
+                      
+
+                    .style("fill", function(d, i) {
+
+                        //return color(getRandomArbitrary(0, 55))
+                        //return myColor(getRandomArbitrary(0, 100));
+                        return myColor((i + elapsed / 50));
+
+                    })
+
+               
+                        //excluded.attr('fill', 'white')
+                        console.log(elapsed)
+                    
+                         if (letter == 'O' && elapsed > 5500)
+                         {
+
+                        var shuffled = not_excluded._groups[0].sort(function() {
+                                            return Math.random() - 0.5
+                                        });
+                        
+                        t2.stop();
+                        var sum_secs=0;
+                        excluded.transition()
+                        .duration(700)
+                                                        .delay(function(d, i) {
+                                                            sum_secs+=i*100
+                                                            return i*5
+
+                                                        })
+                        .attr('rx',15).attr('ry',15)
+                        .style('stroke-width',1).style('stroke-color','white')
+                        excluded.transition()
+                                                        .duration(4000)
+                                                        .delay(function(d, i) {
+                                                            
+
+                                                             return i*100
+                                                             //return getRandomArbitrary(2, 900)
+                                                            //return getRandomArbitrary(2, 250)
+                                                        })   
+                                                        
+                                                        //.attr('x', app.height)
+                                                        .attr('width',rect_width+5)
+                                                        .attr('height',rect_width+5)
+                                                        .attr('y', app.height)
+     
+                        console.log(sum_secs)                                                   
+                          setTimeout(function()
+                          {
+                            d3.select('.g_rect').attr("style", "")
+                            $('.duplicated_rects').remove();
+
+
+                            console.warn('done!')
+                            
+                             var t = d3.timer(function(elapsed) {
+                                    d3.selectAll('rect').transition()
+                                        .delay(
+                                            function(d, i) {
+                                                //  return getRandomArbitrary(2,10)
+                                                return 1
+                                            })
+                                     
+                                    .style("fill", function(d, i) {
+
+                                        //return color(getRandomArbitrary(0, 55))
+                                        return color((i + elapsed / 50) % 25);
+
+
+                                    })
+                                },50)
+
+                                setTimeout(function()
+                                {
+                                    $('#intro_modal').modal('open');
+
+                                    $('.modal-overlay').css('opacity',0)
+                                },2000)
+                            
+
+                          },15000)                                
+                    }
+
+
+                }, 50);
+            }
+          }
+            //d3.select('.g_rect defs').remove()
+
+            /*    setTimeout(function()
+                {
+                    debugger
+                 plot_letter('a')   
+             },5000)*/
+
+            //     // } //end plot function
+        })
+
+
+        //d3.interval(run, 9000);
+    </script>
+</head>
+
+<body>
+     <div id="intro_modal" class="modal">
+        <div class="modal-content">
+            <h5>Today</h5>
+            <h4>You can eat...</h4>
+            <div><img src='bananinha.png'/></div>
+            
+        </div>
+    </div>
+    <div class='all_container row'>
+        <div class='div_container col s8 offset-s2'>
+            <svg class='svg'>
+
+            <g class='g_rect'></g>
+            <g class='g_circle'></g>
+        </svg>
+
+            <!-- <div id="circles_viz"></div> -->
+        </div>
+    </div>
+
+
+</body>
+
+</html>
