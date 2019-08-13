@@ -16,19 +16,22 @@
         }
         
         .div_container {
-            margin: 0 auto 50px auto;
-            width: 90%;
-            height: 99%;
+            /*margin: 0 auto 50px auto;*/
+            position: absolute!important;
+            left: 20%!important;
+            top:10%!important;
+           /* width: 90%;
+            height: 99%;*/
             /*border: 3px solid #8b1fc8*/
         }
-        #intro_modal
+        #intro_modal,#first_modal
         {
+            text-align: center;
             max-width: 370px!important;
         }
         
         .div_container svg {
-            display: inline-block;
-            position: absolute;
+            
             padding: 5px;
         }
     </style>
@@ -52,17 +55,35 @@
 
         $(document).ready(function() {
 
-
-            $('#intro_modal').modal({
+            $('#first_modal').modal({
                 dismissible: false, // Modal can be dismissed by clicking outside of the modal
                 opacity: .9, // Opacity of modal background
-                inDuration: 500, // Transition in duration
+                inDuration: 200, // Transition in duration
                 outDuration: 200, // Transition out duration
                 startingTop: '25%', // Starting top style attribute
                 endingTop: '30%'
             });
 
-             //$('#intro_modal').modal('open');
+
+            $('#intro_modal').modal({
+                dismissible: false, // Modal can be dismissed by clicking outside of the modal
+                opacity: .9, // Opacity of modal background
+                inDuration: 1500, // Transition in duration
+                outDuration: 200, // Transition out duration
+                startingTop: '25%', // Starting top style attribute
+                endingTop: '30%'
+            });
+
+             $('#first_modal').modal('open');
+             $('.accept').on('click',function()
+             {
+                  screenfull.request($('.all_container')[0])
+
+
+            
+                $('#first_modal').modal('close');
+                 start_all();
+             })
 
                //                     $('.modal-overlay').css('opacity',0)
 
@@ -76,13 +97,14 @@
             //                })
 
             // })
-
+    function start_all()
+    {
             //function plot() {
             var window_w = document.documentElement.clientWidth
             var window_h = document.documentElement.clientHeight
 
 
-            var myColor = d3.scaleSequential().domain([1, 20])
+            var rainbow_color = d3.scaleSequential().domain([1, 100])
                 .interpolator(d3.interpolateRainbow);
 
             function getRandomArbitrary(min, max) {
@@ -94,13 +116,14 @@
                 bottom: 30,
                 left: 40
             };
+            
 
             var width = window_h;
             //var height = window_h;
             var height = width;
 
             app.height=height;
-
+            
             var svg = d3.select(".div_container svg")
                 .attr("width", height)
                 .attr("height", height)
@@ -110,7 +133,7 @@
 
 
             // Build color scale
-            var myColor = d3.scaleSequential()
+            var rainbow_color = d3.scaleSequential()
                 .interpolator(d3.interpolateRainbow)
                 .domain([1, 100]);
 
@@ -238,9 +261,12 @@
                 .attr('fill', function() {
 
                     return 'black';
-                    //return myColor(getRandomArbitrary(0, 100));
+                    //return rainbow_color(getRandomArbitrary(0, 100));
                 })
                 .style('opacity', 0.2);
+
+
+
 
 
 
@@ -277,7 +303,7 @@
             //     .attr('fill', function() {
 
 
-            //         return myColor(getRandomArbitrary(0, 100));
+            //         return rainbow_color(getRandomArbitrary(0, 100));
             //     })
             //     .style('opacity', 1)
 
@@ -374,7 +400,7 @@
                     .attr('fill', function() {
 
                         return 'black';
-                        //return myColor(getRandomArbitrary(0, 100));
+                        //return rainbow_color(getRandomArbitrary(0, 100));
                     })
                     .style('opacity', 0);
 
@@ -406,7 +432,7 @@
                     })
                     .attr("r", 5)
                     .attr('fill', function() {
-                        return myColor(getRandomArbitrary(0, 100));
+                        return rainbow_color(getRandomArbitrary(0, 100));
                     })
 
                 //12
@@ -416,7 +442,7 @@
                 var not_letter = svg.selectAll('circle').filter(function(d, i) {
                     return d3.select(this).classed('duplicated_circle_rect') == false
                 });*/
-                var myColor = d3.scaleSequential()
+                var rainbow_color = d3.scaleSequential()
                     .interpolator(d3.interpolateRainbow)
                     .domain([1, 100]);
 
@@ -443,9 +469,9 @@
                         })
                         .attr("r", radius / 3)
                         .attr('fill', function() {
-                            return myColor(getRandomArbitrary(0, 100));
+                            return rainbow_color(getRandomArbitrary(0, 100));
                         })
-                        .style('opacity', 0.7);
+                        .style('opacity', 1);
 
 
 
@@ -459,14 +485,14 @@
 
                             return (i * 10)
                         })
-                        .style('opacity', 1)
+                        
                         .attr("r", function(d, i) {
                             return radius / 1.2
                         })
                         .style("fill", function(d, i) {
 
                             //  return d3.interpolate("green", "red");
-                            return myColor(getRandomArbitrary(0, 100));
+                            return rainbow_color(getRandomArbitrary(0, 100));
 
                         })
                         /* .attr("cy", function(d, i) {
@@ -572,7 +598,7 @@
                             var random = app.all_rects._groups[0][parseInt(getRandomArbitrary(0, 40))];
 
                             if (i == path_obj.length - 1) {
-                                console.info(path)
+                                
                                 if (last == true) {
 
                                     return false
@@ -582,12 +608,15 @@
                                     for (var p in app.path) {
                                         if (app.path[p].letter == letter) {
                                             var next_index = parseInt(p) + 1;
-                                            console.log(next_index)
-                                            console.warn(app.path[next_index])
+                                            // console.log(next_index)
+                                            // console.warn(app.path[next_index])
+                                            
                                             var next_letter = app.path[next_index].letter;
+
                                         }
                                     }
-                                    if (next_letter !== 'A')
+
+                                    if (next_letter !== 'G')
                                         plot_letter(next_letter, false)
                                     else {
                                         plot_letter(next_letter, true);
@@ -596,23 +625,15 @@
                                         });
 
                                         var l = $('.duplicated_circle_circle').length;
-                                        console.log(l)
+                                        //var ease=;
+                                        //console.log(ease)
+                                        
                                         d3.selectAll('.duplicated_circle_circle')
                                             .transition()
-                                            .duration(1800)
-                                            .delay(function(d, i) {
-                                                //the bigger, the faster
-                                                //  console.info(i * 10)
+                                            .ease(d3.easeElasticOut)
+                                            .duration(3800)
 
-                                                return getRandomArbitrary(2, 250)
-
-                                                /*  if (i<20)
-                                                    return (i * 400)
-                                                  if(i>20 && i<80)
-                                                    return i*100
-                                                  if (i>80)
-                                                    return 10*/
-                                            })
+                                            
                                             .attr('cx', function(d, i) {
 
 
@@ -622,35 +643,38 @@
 
                                                 return shuffled[i]['__data__'].y_center;
                                             })
-                                            .attr('r', 1)
-                                            .remove()
+                                            .attr('r', 7)
+                                            //.remove()
                                             .on('end', function(d, i) {
 
                                                 if (i == l - 1) {
                                                     //  alert('done')
-                                                    d3.selectAll('rect')
-                                                        .transition()
-                                                        .duration(2000)
-                                                        //.attr('fill','white')
-                                                        .style('opacity', 0.5)
+                                                    // d3.selectAll('rect')
+                                                    //     .transition()
+                                                    //     .duration(2000)
+                                                    //     //.attr('fill','white')
+                                                    //     .style('opacity', 0.5)
                                                         /*.attr('stroke','white')
                                                         .attr('stroke-width',0.2)*/
 
                                                     app.circles = false;
 
-                                                    d3.selectAll('.duplicated_circle_circle').remove()
+                                                   
 
                                                     d3.selectAll('.duplicated_rects').remove();
 
-                                                    plot_letter('G', false)
+                                                    plot_letter('G', false);
+                                                    
                                                     setTimeout(function()
                                                         {
                                                             plot_letter('i', false)
                                                         },1500);
                                                     setTimeout(function()
                                                         {
-                                                            plot_letter('O', false)
-                                                        },2500)
+                                                            $('.duplicated_circle_circle').fadeOut().remove()
+                                                            plot_letter('O', false);
+
+                                                        },3500)
                                                     
                                                  //   if (letter == 'G')
                               //  plot_letter('i', false)
@@ -682,34 +706,11 @@
                 } //end if app.circles=true
                 else {
 
-                    // $('#gooey').empty()
-
-                    // //$('#gooey').empty()
-                    //d3.select('.g_rect').attr("style", "")
-                    //var defs = d3.select('.g_rect defs') //.append("defs");
-                    // var filter = defs.select('filter').attr("id", "gooey2");
-                    //var filter = defs.select('filter').remove
-
-                    // filter.append("feGaussianBlur")
-                    //     .attr("in", "SourceGraphic")
-                    //     .attr("stdDeviation", "10")
-                    //     //to fix safari: http://stackoverflow.com/questions/24295043/svg-gaussian-blur-in-safari-unexpectedly-lightens-image
-                    //     .attr("color-interpolation-filters", "sRGB")
-                    //     .attr("result", "blur");
-                    // filter.append("feColorMatrix")
-                    //     .attr("in", "blur")
-                    //     .attr("mode", "matrix")
-                    //     .attr("values", "1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9")
-                    //     .attr("result", "gooey2");
-                    // d3.select('.g_rect').style('filter', 'url(#gooey2)')
-
-                    // d3.select('.g_circle')
-                    //     .attr("width", width + margin.left + margin.right)
-                    //     .attr("height", height + margin.top + margin.bottom)
-                    //     .style("filter", "url(#gooey2)")
-                    //     .append("g")
-
-
+                    setTimeout(function()
+                    {
+                      d3.select('.g_rect').attr("style", "")    
+                    },1500)
+                    
 
                     plot_letter_2(letter, path_obj)
 
@@ -718,12 +719,6 @@
                     console.warn(path_obj)
                         //for each circle to be animated, create a duplicated
 
-
-
-
-                    //12
-                    //debugger
-                    //duplicated_circles
                     console.log($('.duplicated_rects').length);
                     // /* var not_letter = svg.selectAll('circle').filter(function(d, i) {
                     //      return d3.select(this).classed('duplicated') == false
@@ -738,9 +733,14 @@
 
                 console.info(letter)
                 if (letter == 'O')
+                {
                     rainbow = true;
+
+                }
                 else
+                {
                     rainbow = false;
+                }
 
                 
                 var color = d3.scaleLinear()
@@ -752,6 +752,14 @@
                     .range(["yellow", "purple", "green"])
                     .domain([0, 12, 25])
                     .interpolate(d3.interpolateHsl);
+                  var rainbow_color = d3.scaleLinear()
+                    .interpolate(d3.interpolateRainbow)
+                    .domain([1, 100]);
+
+                var nice_colors=d3.scaleLinear().domain([1,100])
+      .interpolate(d3.interpolateHcl)
+      .range([d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
+
 
                 var duplicated_in_rect = app.g_rect.selectAll('.duplicated_rects')
                     //.data(path_obj, function(d) {
@@ -779,7 +787,7 @@
                     .attr("width", rect_width)
                     .attr("height", rect_width)
                     .attr('fill', function() {
-                        return 'gold';
+                        return nice_colors(getRandomArbitrary(0, 100))
                     })
                     .style('opacity', 1);
 
@@ -802,15 +810,33 @@
 
 
 
-                var myColor = d3.scaleSequential()
-                    .interpolator(d3.interpolateRainbow)
-                    .domain([1, 100]);
+              
+      
                
 
         
 
             if (rainbow == true) {
 
+                  var rainbow_color = d3.scaleLinear()
+                    .interpolate(d3.interpolateRainbow)
+                    .domain([1, 100]);
+
+                //d3.select('.g_rect').attr("style", "")
+                
+                //d3.select('.g_rect').attr("style", "url(#gooey)")    
+
+
+                          var nice_colors=d3.scaleLinear().domain([1,100])
+      .interpolate(d3.interpolateHcl)
+      .range([d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
+
+                // setTimeout(function()
+                // {
+                     
+                    
+                // },2000)
+            //    d3.selectAll('.g_rect rect').style('opacity',1);
                
                 var t2 = d3.timer(function(elapsed) {
 
@@ -818,41 +844,48 @@
                         .delay(
                             function(d, i) {
                                 //  return getRandomArbitrary(2,10)
-                                console.warn(i)
-                                return i*10
+                                
+                                return i*100
                             })
                       
 
-                    .style("fill", function(d, i) {
-
-                        //return color(getRandomArbitrary(0, 55))
-                        //return myColor(getRandomArbitrary(0, 100));
-                        return myColor((i + elapsed / 50));
+                    .attr("fill", function(d, i) {
+                        return nice_colors(getRandomArbitrary(0, 100))
 
                     })
 
                
                         //excluded.attr('fill', 'white')
                         console.log(elapsed)
+                        if (letter == 'O')// && elapsed>1000)
+                        {
+                            console.warn('o letter')
+                            excluded.attr('rx',15).attr('ry',15)
+                        .style('stroke-width',1).style('stroke-color','white')
+
+
+                            
+                            
+                        }
                     
                          if (letter == 'O' && elapsed > 5500)
                          {
 
-                        var shuffled = not_excluded._groups[0].sort(function() {
-                                            return Math.random() - 0.5
-                                        });
+                    d3.select('.g_rect').style("filter", "url(#gooey)")
+                        // var shuffled = not_excluded._groups[0].sort(function() {
+                        //                     return Math.random() - 0.5
+                        //                 });
                         
                         t2.stop();
                         var sum_secs=0;
                         excluded.transition()
                         .duration(700)
-                                                        .delay(function(d, i) {
+                                .delay(function(d, i) {
                                                             sum_secs+=i*100
                                                             return i*5
 
                                                         })
-                        .attr('rx',15).attr('ry',15)
-                        .style('stroke-width',1).style('stroke-color','white')
+                        
                         excluded.transition()
                                                         .duration(4000)
                                                         .delay(function(d, i) {
@@ -862,7 +895,10 @@
                                                              //return getRandomArbitrary(2, 900)
                                                             //return getRandomArbitrary(2, 250)
                                                         })   
-                                                        
+                                                        .attr('fill',function()
+                                                        {
+                                                            return nice_colors(getRandomArbitrary(0, 100))
+                                                        })
                                                         //.attr('x', app.height)
                                                         .attr('width',rect_width+5)
                                                         .attr('height',rect_width+5)
@@ -871,12 +907,12 @@
                         console.log(sum_secs)                                                   
                           setTimeout(function()
                           {
-                            d3.select('.g_rect').attr("style", "")
+                            
                             $('.duplicated_rects').remove();
 
 
                             console.warn('done!')
-                            
+                            //d3.selectAll('rect').attr('rx',20).attr('ry',20)
                              var t = d3.timer(function(elapsed) {
                                     d3.selectAll('rect').transition()
                                         .delay(
@@ -886,39 +922,32 @@
                                             })
                                      
                                     .style("fill", function(d, i) {
-
                                         //return color(getRandomArbitrary(0, 55))
                                         return color((i + elapsed / 50) % 25);
-
-
                                     })
                                 },50)
 
                                 setTimeout(function()
                                 {
                                     $('#intro_modal').modal('open');
+                                    setTimeout(function()
+                                        {
+                                            $('.bananana').show()
+                                        },1500)
 
-                                    $('.modal-overlay').css('opacity',0)
-                                },2000)
+                                    // $('.modal-overlay').css('opacity',0)
+                                },3500)
                             
 
                           },15000)                                
                     }
 
 
-                }, 50);
+                }, 2);
             }
           }
-            //d3.select('.g_rect defs').remove()
-
-            /*    setTimeout(function()
-                {
-                    debugger
-                 plot_letter('a')   
-             },5000)*/
-
-            //     // } //end plot function
-        })
+        } //end start_all function
+    })
 
 
         //d3.interval(run, 9000);
@@ -926,16 +955,25 @@
 </head>
 
 <body>
+    <div id="first_modal" class="modal">
+        <div class="modal-content">
+            <h2>Please accept terms and conditions</h2>
+            <h4>(and use Google Chrome!)</h4>
+            
+            <div class='btn accept'>I accept!</div>
+            
+        </div>
+    </div>
      <div id="intro_modal" class="modal">
         <div class="modal-content">
-            <h5>Today</h5>
+            <h3>Today</h3>
             <h4>You can eat...</h4>
-            <div><img src='bananinha.png'/></div>
+            <div style='display: hidden' class='bananana'><img src='bananinha.png'/></div>
             
         </div>
     </div>
     <div class='all_container row'>
-        <div class='div_container col s8 offset-s2'>
+        <div class='div_container col s8'>
             <svg class='svg'>
 
             <g class='g_rect'></g>
