@@ -482,7 +482,7 @@ background-color: transparent!important;
                         .attr("cy", function(d) {
                             return d.cy;
                         })
-                        .attr("r", radius / 3)
+                        .attr("r", 0)
                         .attr('fill', function() {
                             return rainbow_color(getRandomArbitrary(0, 100));
                         })
@@ -493,7 +493,7 @@ background-color: transparent!important;
 
 
                     duplicated_circles_circle.transition()
-                        .duration(300)
+                        .duration(700)
                         .delay(function(d, i) {
                             //the bigger, the faster
                             //  console.info(i * 10)
@@ -633,11 +633,14 @@ background-color: transparent!important;
 
                                     if (next_letter !== 'G')
                                     {
-
-                                        plot_letter(next_letter, false)
+                                        setTimeout(function()
+                                        {
+                                            plot_letter(next_letter, false)
+                                         },200)
+                                        
                                     }
                                     else {
-                                        
+
                                         var shuffled = app.all_rects._groups[0].sort(function() {
                                             return Math.random() - 0.5
                                         });
@@ -648,6 +651,7 @@ background-color: transparent!important;
                                         
                                         d3.selectAll('.duplicated_circle_circle')
                                             .transition()
+                                            .delay(1000)
                                             .ease(d3.easeElasticOut)
                                             .duration(3800)
 
