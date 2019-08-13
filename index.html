@@ -3,18 +3,30 @@
 <head>
     <style>
         body {
-            background: black;
+            background-color: black!important;
             margin: 0 auto 50px auto;
         }
-        
-        .amoeba {
-            fill: #fff;
+
+        html
+        {
+            background-color: black!important
         }
         
+
         .purple {
             fill: #8b1fc8;
         }
-        
+        .modal {
+   max-height: 100%!important;
+}
+.modal-overlay
+{
+    opacity: 0!important;
+}
+.modal-overlay
+{
+background-color: transparent!important;
+}
         .div_container {
             /*margin: 0 auto 50px auto;*/
             position: absolute!important;
@@ -57,7 +69,7 @@
 
             $('#first_modal').modal({
                 dismissible: false, // Modal can be dismissed by clicking outside of the modal
-                opacity: .9, // Opacity of modal background
+                opacity: .1, // Opacity of modal background
                 inDuration: 200, // Transition in duration
                 outDuration: 200, // Transition out duration
                 startingTop: '25%', // Starting top style attribute
@@ -67,7 +79,7 @@
 
             $('#intro_modal').modal({
                 dismissible: false, // Modal can be dismissed by clicking outside of the modal
-                opacity: .9, // Opacity of modal background
+                opacity: 0, // Opacity of modal background
                 inDuration: 1500, // Transition in duration
                 outDuration: 200, // Transition out duration
                 startingTop: '25%', // Starting top style attribute
@@ -75,13 +87,16 @@
             });
 
              $('#first_modal').modal('open');
+             $('.modal-overlay').css('opacity',0)
              $('.accept').on('click',function()
              {
                   screenfull.request($('.all_container')[0])
 
-
+               
             
                 $('#first_modal').modal('close');
+                
+                
                  start_all();
              })
 
@@ -261,7 +276,7 @@
                 .attr('fill', function() {
 
                     return 'black';
-                    //return rainbow_color(getRandomArbitrary(0, 100));
+                    
                 })
                 .style('opacity', 0.2);
 
@@ -402,7 +417,7 @@
                         return 'black';
                         //return rainbow_color(getRandomArbitrary(0, 100));
                     })
-                    .style('opacity', 0);
+                    .style('opacity', 0.2);
 
 
 
@@ -471,7 +486,7 @@
                         .attr('fill', function() {
                             return rainbow_color(getRandomArbitrary(0, 100));
                         })
-                        .style('opacity', 1);
+                        .style('opacity', 0.8);
 
 
 
@@ -617,9 +632,12 @@
                                     }
 
                                     if (next_letter !== 'G')
+                                    {
+
                                         plot_letter(next_letter, false)
+                                    }
                                     else {
-                                        plot_letter(next_letter, true);
+                                        
                                         var shuffled = app.all_rects._groups[0].sort(function() {
                                             return Math.random() - 0.5
                                         });
@@ -643,7 +661,7 @@
 
                                                 return shuffled[i]['__data__'].y_center;
                                             })
-                                            .attr('r', 7)
+                                            .attr('r', 12)
                                             //.remove()
                                             .on('end', function(d, i) {
 
@@ -656,14 +674,14 @@
                                                     //     .style('opacity', 0.5)
                                                         /*.attr('stroke','white')
                                                         .attr('stroke-width',0.2)*/
+                                                    plot_letter(next_letter, true);
 
                                                     app.circles = false;
 
-                                                   
-
-                                                    d3.selectAll('.duplicated_rects').remove();
+                                                    d3.selectAll('.duplicated_rects,.duplicated_circle_circle').remove();
 
                                                     plot_letter('G', false);
+                                                    
                                                     
                                                     setTimeout(function()
                                                         {
@@ -676,19 +694,7 @@
 
                                                         },3500)
                                                     
-                                                 //   if (letter == 'G')
-                              //  plot_letter('i', false)
-                            // if (letter == 'i') {
-                            //     //plot_letter('O', false)
-
-                            //     // anim_excluded()
-                            // }
-                            // if (letter == 'O')
-                            // {
-                            //     return false;
-                            //     t.stop()
-                            // }
-
+                      
 
                                                 }
                                             })
@@ -706,10 +712,10 @@
                 } //end if app.circles=true
                 else {
 
-                    setTimeout(function()
+                    /*setTimeout(function()
                     {
                       d3.select('.g_rect').attr("style", "")    
-                    },1500)
+                    },1500)*/
                     
 
                     plot_letter_2(letter, path_obj)
@@ -789,7 +795,7 @@
                     .attr('fill', function() {
                         return nice_colors(getRandomArbitrary(0, 100))
                     })
-                    .style('opacity', 1);
+                    .style('opacity', 0.8);
 
 
 
@@ -806,15 +812,6 @@
                         return d3.select(this)
                 })
 
-
-
-
-
-              
-      
-               
-
-        
 
             if (rainbow == true) {
 
@@ -838,17 +835,19 @@
                 // },2000)
             //    d3.selectAll('.g_rect rect').style('opacity',1);
                
-                var t2 = d3.timer(function(elapsed) {
+                var t2 = d3.timer(function(elapsed) 
+                {
+
 
                     excluded.transition()
+                        .duration(500)
                         .delay(
                             function(d, i) {
                                 //  return getRandomArbitrary(2,10)
                                 
-                                return i*100
+                                return i*10
                             })
                       
-
                     .attr("fill", function(d, i) {
                         return nice_colors(getRandomArbitrary(0, 100))
 
@@ -856,42 +855,38 @@
 
                
                         //excluded.attr('fill', 'white')
-                        console.log(elapsed)
+                        
                         if (letter == 'O')// && elapsed>1000)
                         {
-                            console.warn('o letter')
-                            excluded.attr('rx',15).attr('ry',15)
-                        .style('stroke-width',1).style('stroke-color','white')
-
-
                             
+                            excluded.attr('rx',15).attr('ry',15)
+                           .style('stroke-width',1).style('stroke-color','white')                            
                             
                         }
                     
                          if (letter == 'O' && elapsed > 5500)
                          {
+                        d3.select('.g_rect rect').style('opacity',0.9)
 
-                    d3.select('.g_rect').style("filter", "url(#gooey)")
+                        
+
+                        
                         // var shuffled = not_excluded._groups[0].sort(function() {
                         //                     return Math.random() - 0.5
                         //                 });
                         
                         t2.stop();
-                        var sum_secs=0;
-                        excluded.transition()
-                        .duration(700)
-                                .delay(function(d, i) {
-                                                            sum_secs+=i*100
-                                                            return i*5
 
-                                                        })
+                         
+                        var sum_secs=0;
+                                   
                         
-                        excluded.transition()
-                                                        .duration(4000)
+                                                     excluded.transition()
+                                                        .duration(3500)
                                                         .delay(function(d, i) {
                                                             
 
-                                                             return i*100
+                                                             return i*150
                                                              //return getRandomArbitrary(2, 900)
                                                             //return getRandomArbitrary(2, 250)
                                                         })   
@@ -900,50 +895,44 @@
                                                             return nice_colors(getRandomArbitrary(0, 100))
                                                         })
                                                         //.attr('x', app.height)
-                                                        .attr('width',rect_width+5)
-                                                        .attr('height',rect_width+5)
+                                                        .attr('width',rect_width+10)
+                                                        .attr('height',rect_width+10)
                                                         .attr('y', app.height)
+                                                        .attr('x',function(i,d)
+                                                            {
+                                                              //  console.log(d)
+                                                               return getRandomArbitrary(0, app.height)
+                                                            })
+                                                        .on('end',function(d,i)
+                                                        {
+                                                            console.log(i)
+                                                            console.warn($('.duplicated_rects').length)
+                                                            if (i==$('.duplicated_rects').length-1)
+                                                            {
+                                                                console.warn('done!')
+                                                                 setTimeout(function()
+                                                                {
+                                                                    screenfull.exit();
+
+
+                                                                    $('#intro_modal').modal('open');
+                                                                    setTimeout(function()
+                                                                        {
+                                                                            $('.bananana').show()
+                                                                        },500)
+
+                                                                    // $('.modal-overlay').css('opacity',0)
+                                                                },800)
+                                                            }
+
+                                                        })
+                                                
      
-                        console.log(sum_secs)                                                   
-                          setTimeout(function()
-                          {
-                            
-                            $('.duplicated_rects').remove();
-
-
-                            console.warn('done!')
-                            //d3.selectAll('rect').attr('rx',20).attr('ry',20)
-                             var t = d3.timer(function(elapsed) {
-                                    d3.selectAll('rect').transition()
-                                        .delay(
-                                            function(d, i) {
-                                                //  return getRandomArbitrary(2,10)
-                                                return 1
-                                            })
-                                     
-                                    .style("fill", function(d, i) {
-                                        //return color(getRandomArbitrary(0, 55))
-                                        return color((i + elapsed / 50) % 25);
-                                    })
-                                },50)
-
-                                setTimeout(function()
-                                {
-                                    $('#intro_modal').modal('open');
-                                    setTimeout(function()
-                                        {
-                                            $('.bananana').show()
-                                        },1500)
-
-                                    // $('.modal-overlay').css('opacity',0)
-                                },3500)
-                            
-
-                          },15000)                                
+                                                   
                     }
 
 
-                }, 2);
+                }, 20);
             }
           }
         } //end start_all function
